@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Internal dashboard for evaluating student eligibility across scholarships, sports, coding club, and hackathons.">
+    <title>Enterprise Student Eligibility Dashboard</title>
+    <link rel="icon"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ctext y='19' font-size='20'%3E%F0%9F%9B%A1%EF%B8%8F%3C/text%3E%3C/svg%3E">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+   
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header class="app-header">
+        <div class="header-brand">
+            <div class="brand-logo">
+                <i class="fas fa-shield-halved"></i>
+            </div>
+            <div class="brand-meta">
+                <h1>Student Eligibility Dashboard</h1>
+                <span class="app-version">v2.4 Internal</span>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle system theme">
+                <i class="fas fa-moon" id="theme-icon"></i>
+                <span id="theme-text">Dark Mode</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="main-container">
+
+        <section class="insights-grid" aria-label="Executive Matrix">
+            <div class="insight-card">
+                <span class="card-label">Top Performance Scorer</span>
+                <p id="insight-top-scorer" class="card-value-placeholder">Await Evaluation</p>
+            </div>
+            <div class="insight-card">
+                <span class="card-label">Primary Active Department</span>
+                <p id="insight-best-branch" class="card-value-placeholder">N/A</p>
+            </div>
+            <div class="insight-card">
+                <span class="card-label">Most Active Program Pathway</span>
+                <p id="insight-active-pathway" class="card-value-placeholder">None Selected</p>
+            </div>
+            <div class="insight-card">
+                <span class="card-label">Overall Clearance Rate</span>
+                <p id="insight-rate" class="card-value font-numeric">0.0%</p>
+            </div>
+        </section>
+
+        <section class="stats-grid" aria-label="Operational Metrics">
+            <div class="stat-card metric-total">
+                <div class="stat-meta">
+                    <span class="stat-label">Total Validations</span>
+                    <h3 id="stat-total" class="stat-value font-numeric">0</h3>
+                </div>
+                <div class="stat-badge-icon"><i class="fas fa-layer-group"></i></div>
+            </div>
+            <div class="stat-card metric-eligible">
+                <div class="stat-meta">
+                    <span class="stat-label">Cleared Candidates</span>
+                    <h3 id="stat-eligible" class="stat-value font-numeric">0</h3>
+                </div>
+                <div class="stat-badge-icon"><i class="fas fa-check-circle"></i></div>
+            </div>
+            <div class="stat-card metric-rejected">
+                <div class="stat-meta">
+                    <span class="stat-label">Non-Eligible Entries</span>
+                    <h3 id="stat-rejected" class="stat-value font-numeric">0</h3>
+                </div>
+                <div class="stat-badge-icon"><i class="fas fa-ban"></i></div>
+            </div>
+            <div class="stat-card metric-avg">
+                <div class="stat-meta">
+                    <span class="stat-label">Aggregate Score Metric</span>
+                    <h3 id="stat-avg" class="stat-value font-numeric">0%</h3>
+                </div>
+                <div class="stat-badge-icon"><i class="fas fa-chart-bar"></i></div>
+            </div>
+        </section>
+
+        <div class="workspace-grid">
+
+            <section class="workspace-card content-panel">
+                <div class="panel-header">
+                    <h2 id="formHeading"><i class="fas fa-sliders"></i> Eligibility Parameters</h2>
+                    <p class="panel-subtitle">Configure candidate academic inputs for criteria compliance mapping.</p>
+                </div>
+
+                <form id="eligibilityForm" onsubmit="checkEligibility(event)" class="enterprise-form">
+                    <div class="form-group">
+                        <label for="studentName">Legal Student Name</label>
+                        <input type="text" id="studentName" class="form-control" placeholder="Jane Doe" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="rollNo">Academic Identifier / Roll Reference</label>
+                        <input type="text" id="rollNo" class="form-control" placeholder="e.g., UI-2026-1042" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="branch">Functional Department / Specialization</label>
+                        <select id="branch" class="form-control">
+                            <option value="CSE">Computer Science & Engineering (CSE)</option>
+                            <option value="IT">Information Technology (IT)</option>
+                            <option value="ECE">Electronics & Communication (ECE)</option>
+                            <option value="MECH">Mechanical Engineering (MECH)</option>
+                            <option value="AI">Artificial Intelligence (AI)</option>
+                            <option value="DS">Data Science (DS)</option>
+                            <option value="AIML">AI & Machine Learning (AIML)</option>
+                            <option value="CSBS">Computer Science & Business Systems (CSBS)</option>
+                            <option value="EEE">Electrical Engineering (EEE)</option>
+                            <option value="CIVIL">Civil Engineering (CIVIL)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="cgpa">Cumulative CGPA</label>
+                            <input type="number" id="cgpa" class="form-control" step="0.01" min="0" max="10"
+                                placeholder="0.00" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="attendance">Attendance Ledger (%)</label>
+                            <input type="number" id="attendance" class="form-control" min="0" max="100" placeholder="%"
+                                required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="activity">Target Clearance Pathway</label>
+                        <select id="activity" class="form-control" onchange="updateRulesPanel()">
+                            <option value="Scholarship">Corporate Scholarship Matrix</option>
+                            <option value="Sports">Elite Athletics Council</option>
+                            <option value="CodingClub">Advanced Developer Cohort</option>
+                            <option value="Hackathon">Inter-Varsity Hackathon Syndicate</option>
+                        </select>
+                    </div>
+
+                    <div class="rules-panel-box" id="rulesPanel">
+                        <div class="rules-header"><i class="fas fa-info-circle"></i> Criteria Threshold Rules</div>
+                        <ul id="rulesList" class="rules-list-items"></ul>
+                    </div>
+
+                    <button type="submit" id="submitBtn" class="btn btn-primary">Process Matrix Pipeline</button>
+                </form>
+            </section>
+
+            <div class="workspace-sidebar">
+
+                <section class="workspace-card dynamic-result-view">
+                    <div class="panel-header">
+                        <h2><i class="fas fa-broadcast-tower"></i> Real-time Output</h2>
+                    </div>
+
+                    <div class="result-container-active" id="resultBlock" style="display:none;">
+                        <div class="avatar-meta-strip">
+                            <div class="initials-avatar" id="resAvatar">--</div>
+                            <div class="user-meta-block">
+                                <div id="resName" class="meta-title">Student Record</div>
+                                <div class="meta-subtext">ID Reference: <span id="resRoll" class="font-numeric">0</span>
+                                    &bull; <span id="resBranch">GEN</span></div>
+                            </div>
+                        </div>
+
+                        <div class="circle-progress-shell" id="circleProgress">
+                            <div class="circle-value font-numeric" id="circleValue">0%</div>
+                        </div>
+
+                        <div class="badge-status-container">
+                            <span id="rankBadge" class="badge-pill">Pending Evaluation</span>
+                        </div>
+
+                        <h3 id="eligibilityStatus" class="status-verdict">Awaiting Pipeline Data</h3>
+                    </div>
+
+                    <div id="placeholderText" class="panel-empty-state">
+                        <i class="fas fa-cube placeholder-icon"></i>
+                        <p>No result yet. Fill in the eligibility parameters on the left and submit to see a
+                            candidate's score here.</p>
+                    </div>
+                </section>
+
+                <section class="workspace-card chart-view-container">
+                    <div class="panel-header">
+                        <h2><i class="fas fa-chart-pie"></i> Distribution Analytics</h2>
+                    </div>
+                    <div class="canvas-chart-holder">
+                        <canvas id="analyticsChart"></canvas>
+                    </div>
+                    <div class="chart-legend" id="chartLegend">
+                        <div class="legend-item">
+                            <span class="legend-dot" style="background-color: var(--success);"></span>
+                            <span>Eligible</span>
+                            <span class="legend-count" id="legendEligibleCount">0</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot" style="background-color: var(--destructive);"></span>
+                            <span>Rejected</span>
+                            <span class="legend-count" id="legendRejectedCount">0</span>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <section class="workspace-card ledger-log-section" id="verificationLogSection">
+            <div class="ledger-header">
+                <div class="panel-header">
+                    <h2><i class="fas fa-server"></i> System Audit Trail</h2>
+                    <p class="panel-subtitle">Historical records immutable transaction registry for pipeline evaluation.
+                    </p>
+                </div>
+                <div class="ledger-actions-toolbar">
+                    <button onclick="exportToCSV()" class="btn-tool"><i class="fas fa-file-csv"></i> Export CSV</button>
+                    <button onclick="exportToPDF()" class="btn-tool btn-destructive-tool"><i
+                            class="fas fa-file-pdf"></i> Export Corporate PDF Report</button>
+                    <div class="search-input-wrapper">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" id="searchBox" class="form-control ledger-search"
+                            placeholder="Filter log by descriptor...">
+                    </div>
+                </div>
+            </div>
+
+            <div class="query-filter-strip">
+                <select id="filterStatus" class="form-control-sm" onchange="filterHistory()">
+                    <option value="All">All Verdict Statuses</option>
+                    <option value="Eligible">Verified Eligible</option>
+                    <option value="Rejected">Flagged / Non-Compliant</option>
+                </select>
+                <select id="filterBranch" class="form-control-sm" onchange="filterHistory()">
+                    <option value="All">All Departments</option>
+                    <option value="CSE">CSE</option>
+                    <option value="IT">IT</option>
+                    <option value="ECE">ECE</option>
+                    <option value="MECH">MECH</option>
+                    <option value="AI">AI Specialization</option>
+                    <option value="DS">Data Science Portfolio</option>
+                    <option value="AIML">AIML Engineering</option>
+                    <option value="CSBS">CSBS Operations</option>
+                    <option value="EEE">EEE Tech</option>
+                    <option value="CIVIL">Civil Infrastructure</option>
+                </select>
+                <select id="filterActivity" class="form-control-sm" onchange="filterHistory()">
+                    <option value="All">All Applied Vectors</option>
+                    <option value="Scholarship">Scholarship Core</option>
+                    <option value="Sports">Athletic Vector</option>
+                    <option value="CodingClub">Developer Cohort</option>
+                    <option value="Hackathon">Hackathon Grid</option>
+                </select>
+                <select id="sortControl" class="form-control-sm" onchange="filterHistory()">
+                    <option value="None">Default Chronological Sort</option>
+                    <option value="nameAZ">Alphabetical Reference (A-Z)</option>
+                    <option value="nameZA">Alphabetical Reference (Z-A)</option>
+                    <option value="scoreHigh">Evaluation Priority (Highest)</option>
+                    <option value="scoreLow">Evaluation Priority (Lowest)</option>
+                </select>
+            </div>
+
+            <div class="table-responsive-wrapper">
+                
+                <div id="emptyState" class="null-state-viewport">
+                    <i class="fas fa-circle-nodes null-icon"></i>
+                    <p class="null-title">No records to show</p>
+                    <p class="null-subtitle">Either no evaluations have been run yet, or none match your current
+                        search and filters.</p>
+                </div>
+
+                <table id="auditLogTable" class="enterprise-data-table">
+                    <thead>
+                        <tr>
+                            <th>Roll Index</th>
+                            <th>Identity Descriptor</th>
+                            <th>Department</th>
+                            <th>Program Path Vector</th>
+                            <th>Composite Score</th>
+                            <th>System Verdict</th>
+                            <th>Execution Date/Time</th>
+                            <th style="text-align: right;">System Operations</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody"></tbody>
+                </table>
+            </div>
+
+            <div class="pagination-footer-bar">
+                <button onclick="changePage(-1)" id="prevBtn" class="btn-nav"><i class="fas fa-chevron-left"></i>
+                    Previous Stack</button>
+                <div id="pageNumbers" class="pagination-index-pills"></div>
+                <button onclick="changePage(1)" id="nextBtn" class="btn-nav">Next Stack <i
+                        class="fas fa-chevron-right"></i></button>
+            </div>
+        </section>
+    </main>
+
+    <div id="customConfirmModal" class="system-modal-backdrop" style="display: none;">
+        <div class="modal-surface-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle"
+            aria-describedby="modalDesc">
+            <div class="modal-warning-badge"><i class="fas fa-triangle-exclamation"></i></div>
+            <h3 id="modalTitle">Destructive System Action Alert</h3>
+            <p id="modalDesc">You are initiating an unrecoverable database entry purge. This student transaction state
+                will be permanently unlinked from active diagnostic data maps.</p>
+            <div class="modal-action-row">
+                <button id="modalCancelBtn" class="btn-action-dismiss">Abort Directive</button>
+                <button id="modalConfirmBtn" class="btn-action-confirm">Purge Immutable Log</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="system-toast-alert" role="alert">
+        <i class="fas fa-info-circle"></i> <span id="toastMessage">System operational workflow updated.</span>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
